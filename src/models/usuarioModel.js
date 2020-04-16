@@ -1,11 +1,11 @@
 const pool = require('../database');
 var usuarioModel={};
 
-usuarioModel.insertUsuario = (usuario) => {
-    const {nombre, apellidoP, apellidoM, fechaN, email, password, telefono, rut} = usuario;
+usuarioModel.createUsuario = (usuario) => {
+    const {nombre, apellidoP, apellidoM, fechaN, email, password, telefono, rut,tipoUsuario} = usuario;
     return new Promise( (resolve, reject) => {
-        pool.query(`insert into usuarios(nombre,apellidoP,apellidoM,rut,email,telefono, password, tipoUsuario_id,fechaNacimiento)
-        values();`, (err, result) => {
+        pool.query(`call sp_createUsuario('${nombre}','${apellidoP}','${apellidoM}','${fechaN}',${telefono},
+        '${email}','${rut}','${password}', ${tipoUsuario})`, (err, result) => {
             if(err) reject(err)
             if(result){
                 resolve(result[0]);
@@ -24,6 +24,41 @@ usuarioModel.getUsuarios = () => {
             }
         });
     });
+};
+
+usuarioModel.getUsuario = (usuarioId) => {
+    return new Promise( (resolve, reject) => {
+        pool.query(`call sp_getUsuario(${usuarioId})`, (err, result) => {
+            if(err) reject(err)
+            if(result){
+                resolve(result[0]);
+            }
+        });
+    } );
+};
+
+usuarioModel.updateUsuario = (usuario) => {
+    const {nombre, apellidoP, apellidoM, fechaN, email, telefono, rut, usuarioId} = usuario;
+    return new Promise( (resolve, reject) => {
+        pool.query(`call sp_updateUsuario('${nombre}','${apellidoP}','${apellidoM}','${fechaN}',${telefono},
+        '${email}','${rut}', ${usuarioId})`, (err, result) => {
+            if(err) reject(err)
+            if(result){
+                resolve(result);
+            }
+        });
+    });
+};
+
+usuarioModel.deleteUsuario = (usuarioId) => {
+    return new Promise( (resolve, reject) => {
+        pool.query(`call sp_deleteUsuario(${usuarioId})`, (err, result) => {
+            if(err) reject(err)
+            if(result){
+                resolve(result);
+            }
+        });
+    } );
 };
 
 module.exports=usuarioModel;
